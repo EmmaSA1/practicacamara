@@ -4,8 +4,8 @@ const FILES_TO_CACHE = [
   'practicacamara/index.html',
   'practicacamara/app.js',
   'practicacamara/manifest.json',
-  'practicacamara/icon-192.png',
-  'practicacamara/icon-512.png'
+  'practicacamara/icon-193.png',
+  'practicacamara/icon-513.png'
 ];
 
 // Instalar y guardar archivos
