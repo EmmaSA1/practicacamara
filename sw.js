@@ -1,11 +1,11 @@
 const CACHE_NAME = 'camera-pwa-v3';
 const FILES_TO_CACHE = [
-  'practicacamara/',
-  'practicacamara/index.html',
-  'practicacamara/app.js',
-  'practicacamara/manifest.json',
-  'practicacamara/icon-193.png',
-  'practicacamara/icon-513.png'
+  '/practicacamara/',
+  '/practicacamara/index.html',
+  '/practicacamara/app.js',
+  '/practicacamara/manifest.json',
+  '/practicacamara/193.png',
+  '/practicacamara/513.png'
 ];
 
 // Instalar y guardar archivos
