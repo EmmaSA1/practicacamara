@@ -3,10 +3,10 @@ const CACHE_NAME = 'camara-pwa-v1';
 
 // Archivos que se guardarán en caché
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/app.js',
-  '/manifest.json'
+  '/practicacamara/',
+  'practicacamara/index.html',
+  'practicacamara/app.js',
+  'practicacamara/manifest.json'
 ];
 
 // INSTALACIÓN: Guardar archivos en caché
