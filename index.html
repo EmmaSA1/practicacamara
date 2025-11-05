@@ -3,78 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PWA Cámara</title>
+  <title>Cámara PWA Base64</title>
 
-  <!-- Color de la barra superior del navegador -->
-  <meta name="theme-color" content="#007bff" />
+  <!-- Favicon e iconos -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="manifest" href="practicacamara/manifest.json">
 
-  <!-- Enlace al manifiesto -->
-  <link rel="manifest" href="practicacamara/manifest.json" />
+  <meta name="theme-color" content="#007bff">
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f7f7f7;
+      font-family: system-ui, sans-serif;
       text-align: center;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #333;
     }
 
-    h1 {
-      color: #007bff;
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem;
+      font-size: 1.3rem;
+    }
+
+    main {
+      padding: 1rem;
+    }
+
+    video, canvas, img {
+      width: 100%;
+      max-width: 320px;
+      height: auto;
+      border-radius: 10px;
+      border: 2px solid #007bff;
+      margin: 10px auto;
+      display: block;
     }
 
     button {
-      padding: 10px 20px;
-      margin: 10px;
+      margin: 8px;
+      padding: 10px 14px;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
       border: none;
       border-radius: 8px;
-      background: #007bff;
-      color: white;
       cursor: pointer;
-      font-size: 16px;
       transition: 0.3s;
     }
 
-    button:hover {
-      background: #0056b3;
+    button:disabled {
+      background: #999;
     }
 
-    #cameraContainer {
-      display: none;
+    button:hover:enabled {
+      background-color: #0056b3;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
       margin-top: 20px;
+      padding: 0 10px;
     }
 
-    video, canvas {
-      border-radius: 10px;
-      margin-top: 10px;
-      width: 320px;
-      height: 240px;
+    .gallery img {
+      width: 100%;
+      border-radius: 8px;
       border: 2px solid #007bff;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.05);
     }
   </style>
 </head>
 <body>
-  <h1>PWA Cámara</h1>
+  <header>
+    📸 Cámara Base64 PWA
+  </header>
 
-  <button id="openCamera">Abrir Cámara</button>
+  <main>
+    <button id="openCamera">Abrir Cámara</button>
+    <button id="switchCamera" style="display:none;">Cambiar Cámara</button>
 
-  <div id="cameraContainer">
-    <video id="video" autoplay></video><br />
-    <button id="takePhoto">Tomar Foto</button><br />
-    <canvas id="canvas" width="320" height="240"></canvas>
-  </div>
+    <div id="cameraContainer" style="display:none;">
+      <video id="video" autoplay playsinline></video>
+      <button id="takePhoto">Tomar Foto</button>
+      <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+    </div>
 
-  <!-- Script principal -->
+    <h3>Galería</h3>
+    <div id="gallery" class="gallery"></div>
+  </main>
+
   <script src="practicacamara/app.js"></script>
-
-  <!-- Registro del Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('Service Worker registrado:', reg))
-        .catch(err => console.error('Error al registrar el Service Worker:', err));
-    }
-  </script>
 </body>
 </html>

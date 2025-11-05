@@ -1,97 +1,111 @@
-// Referencias a los elementos del DOM
 const openCameraBtn = document.getElementById('openCamera');
+const switchCameraBtn = document.getElementById('switchCamera');
 const cameraContainer = document.getElementById('cameraContainer');
 const video = document.getElementById('video');
 const takePhotoBtn = document.getElementById('takePhoto');
 const canvas = document.getElementById('canvas');
+const galleryDiv = document.getElementById('gallery');
 const ctx = canvas.getContext('2d');
 
-let stream = null; // Guardará el flujo de la cámara
+let stream = null;
+let useFrontCamera = false;
 
-// Función para abrir la cámara
+// ✅ Abrir cámara
 async function openCamera() {
   try {
     const constraints = {
-      video: {
-        facingMode: { ideal: 'environment' },
-        width: { ideal: 320 },
-        height: { ideal: 240 }
-      }
+      video: { facingMode: useFrontCamera ? 'user' : 'environment' },
+      audio: false
     };
-
     stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = stream;
-
     cameraContainer.style.display = 'block';
-    openCameraBtn.textContent = 'Cámara Abierta';
     openCameraBtn.disabled = true;
-
-    console.log('Cámara abierta correctamente');
-  } catch (error) {
-    console.error('Error al acceder a la cámara:', error);
-    alert('No se pudo acceder a la cámara. Verifica los permisos.');
+    openCameraBtn.textContent = 'Cámara activa';
+    switchCameraBtn.style.display = 'inline-block';
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error al acceder a la cámara. Verifica permisos.');
   }
 }
 
-// Función para tomar una foto y guardarla en Base64
+// 🔁 Cambiar cámara (frontal / trasera)
+async function switchCamera() {
+  useFrontCamera = !useFrontCamera;
+  closeCamera();
+  await openCamera();
+}
+
+// 📸 Tomar foto y guardar en Base64
 function takePhoto() {
-  if (!stream) {
-    alert('Primero debes abrir la cámara.');
+  if (!stream) return alert('Primero abre la cámara.');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const base64 = canvas.toDataURL('image/png');
+  saveToGallery(base64);
+  alert('✅ Foto guardada en galería.');
+}
+
+// 💾 Guardar foto en localStorage
+function saveToGallery(base64) {
+  let gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+  gallery.push(base64);
+  localStorage.setItem('gallery', JSON.stringify(gallery));
+  renderGallery();
+}
+
+// 🖼️ Mostrar galería
+function renderGallery() {
+  galleryDiv.innerHTML = '';
+  const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+  if (gallery.length === 0) {
+    galleryDiv.innerHTML = '<p>No hay fotos guardadas.</p>';
     return;
   }
-
-  // Dibujar el frame actual del video en el canvas
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  // Obtener imagen en formato Base64
-  const imageDataURL = canvas.toDataURL('image/png');
-
-  // Mostrar la imagen en consola (opcional)
-  console.log('📸 Imagen capturada (Base64):', imageDataURL.substring(0, 100) + '...');
-
-  // Guardar en localStorage para conservarla localmente
-  localStorage.setItem('ultimaFoto', imageDataURL);
-
-  alert(' Foto guardada en Base64 dentro del almacenamiento local.');
-
-  // Cerrar la cámara después de tomar la foto
-  closeCamera();
+  gallery.forEach((imgData, index) => {
+    const img = new Image();
+    img.src = imgData;
+    img.alt = `Foto ${index + 1}`;
+    img.addEventListener('click', () => {
+      if (confirm('¿Eliminar esta foto?')) deletePhoto(index);
+    });
+    galleryDiv.appendChild(img);
+  });
 }
 
-// Función para cerrar la cámara
+// 🗑️ Eliminar foto
+function deletePhoto(index) {
+  let gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+  gallery.splice(index, 1);
+  localStorage.setItem('gallery', JSON.stringify(gallery));
+  renderGallery();
+}
+
+// 🔒 Cerrar cámara
 function closeCamera() {
   if (stream) {
-    stream.getTracks().forEach(track => track.stop());
+    stream.getTracks().forEach(t => t.stop());
     stream = null;
-
     video.srcObject = null;
     cameraContainer.style.display = 'none';
-    openCameraBtn.textContent = 'Abrir Cámara';
     openCameraBtn.disabled = false;
-
-    console.log('Cámara cerrada');
+    openCameraBtn.textContent = 'Abrir Cámara';
+    switchCameraBtn.style.display = 'none';
   }
 }
 
-// Recuperar foto guardada al cargar la página
+// 🧠 Al cargar la página
 window.addEventListener('load', () => {
-  const ultimaFoto = localStorage.getItem('ultimaFoto');
-  if (ultimaFoto) {
-    const img = new Image();
-    img.src = ultimaFoto;
-    img.width = 320;
-    img.height = 240;
-    img.style.border = '2px solid #007bff';
-    img.style.borderRadius = '10px';
-    document.body.appendChild(document.createElement('hr'));
-    document.body.appendChild(img);
-    const text = document.createElement('p');
-    text.textContent = ' Última foto guardada (Base64)';
-    document.body.appendChild(text);
+  renderGallery();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('practicacamara/sw.js').then(() => {
+      console.log('✅ Service Worker registrado');
+    });
   }
 });
 
-// Eventos
+// 📱 Eventos
 openCameraBtn.addEventListener('click', openCamera);
 takePhotoBtn.addEventListener('click', takePhoto);
+switchCameraBtn.addEventListener('click', switchCamera);
 window.addEventListener('beforeunload', closeCamera);

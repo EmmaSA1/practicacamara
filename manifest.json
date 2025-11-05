@@ -1,20 +1,20 @@
 {
-  "name": "PWA Cámara",
+  "name": "Cámara PWA Base64",
   "short_name": "CamPWA",
-  "description": "Aplicación PWA para tomar fotografías usando la cámara del dispositivo.",
-  "start_url": "./index.html",
+  "start_url": "practicacamara/",
+  "scope": "practicacamara/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
-  "orientation": "portrait",
+  "description": "Aplicación PWA para tomar fotos, almacenarlas en Base64 y verlas offline.",
   "icons": [
     {
-      "src": "/193.png",
+      "src": "practicacamara/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/513.png",
+      "src": "practicacamara/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

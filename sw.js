@@ -1,67 +1,23 @@
-// Nombre del caché
-const CACHE_NAME = 'camara-pwa-v1';
-
-// Archivos que se guardarán en caché
-const urlsToCache = [
-  '/practicacamara/',
+const CACHE_NAME = 'camera-pwa-v3';
+const FILES_TO_CACHE = [
+  'practicacamara/',
   'practicacamara/index.html',
   'practicacamara/app.js',
-  'practicacamara/manifest.json'
+  'practicacamara/manifest.json',
+  'practicacamara/icon-192.png',
+  'practicacamara/icon-512.png'
 ];
 
-// INSTALACIÓN: Guardar archivos en caché
-self.addEventListener('install', event => {
-  console.log('[Service Worker] Instalando...');
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[Service Worker] Archivos en caché');
-        return cache.addAll(urlsToCache);
-      })
+// Instalar y guardar archivos
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
 });
 
-// ACTIVACIÓN: Limpiar versiones antiguas del caché
-self.addEventListener('activate', event => {
-  console.log('[Service Worker] Activado');
-  const cacheWhitelist = [CACHE_NAME];
-
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[Service Worker] Eliminando caché antiguo:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-});
-
-// FETCH: Estrategia "Cache First"
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse; // Servir desde caché
-        }
-
-        // Si no está en caché, buscar en la red y guardar copia
-        return fetch(event.request).then(networkResponse => {
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
-        });
-      })
-      .catch(() => {
-        // Si no hay red ni caché, mostrar mensaje básico
-        return new Response('<h1>Sin conexión</h1><p>Revisa tu conexión a internet.</p>', {
-          headers: { 'Content-Type': 'text/html' }
-        });
-      })
+// Interceptar solicitudes
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(res => res || fetch(e.request))
   );
 });
